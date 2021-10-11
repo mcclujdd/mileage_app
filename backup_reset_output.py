@@ -1,34 +1,38 @@
+#mileage backup_reset_output.py
+
 import os, shutil
+import config
+
 
 #todo: add auto monthly backup and reset for file
  
 
-def reset_outfile():
+def reset_outfile(file):
 	headers = 'date, startloc, endloc, startodo, endodo, tripmiles\n'
 	# erase all data from outfile and initialize headers
-	with open('output.txt', 'w') as file:
-		file.write(headers)
+	with open(file, 'w') as f:
+		f.write(headers)
 	
-	with open('output.txt', 'r') as file:
-		if file.readline() == headers:
-			print('Resetting output.txt... Done.')
+	with open(file, 'r') as f:
+		if f.readline() == headers:
+			print(f'Resetting {file}... Done.')
 		else:
-			print('There was an error overwriting output.txt')
+			print(f'There was an error overwriting {file}')
 			
 #todo: add date recognition for new month feature
 def backup_outfile(file):
 	backup_dir = os.path.basename('backups')
 	number = 1
 	while True:
-		filename = os.path.basename(file) + '_' + str(number) + '.txt'
+		filename = os.path.basename(config.output_file) + '_' + str(number) + '.txt'
 		
 		
 		if not os.path.exists(backup_dir + '/' + filename):
-			shutil.copy2('output.txt', backup_dir + '/' + filename)
-			print(f'Backup of output.txt successful as backups/{filename}.')
+			shutil.copy2(file, backup_dir + '/' + filename)
+			print(f'Backup of {file} successful as backups/{filename}.')
 			break
 		number = number + 1
 		
 
-backup_outfile('output')			
-reset_outfile()
+backup_outfile(config.output_file)			
+reset_outfile(config.output_file)
