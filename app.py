@@ -1,58 +1,80 @@
-# take user input to help track mileage for import to google sheets mileage worksheet
+#mileage app.py
+'''
+take user input to help track mileage for import
+ to google sheets mileage worksheet
+'''
+#todo: verify location isn't blank
+import logging
+import logging.config
+DEFAULT_LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filename': 'mileage.log',
+    'mode': 'a',
+    'loggers': {
+        '': {
+            'level': 'DEBUG',
+        },
+        'another.module': {
+            'level': 'DEBUG',
+        },
+    }
+}
+logging.config.dictConfig(DEFAULT_LOGGING)
+logger = logging.getLogger(__name__)
+logger.setLevel(10)
+formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(name)s:%(message)s')
 
-# accomodate for forgetting location/odo readings: enter while loop to ask for odo and grab auto location. break out if odo value is NOT 1. if it is one, DONT run the auto lcoatiok function, instead ask for location.
+file_handler = logging.FileHandler('mileage.log')
+file_handler.setFormatter(formatter)
 
-#todo: add a verification for when manual entry odo doesnt match the value for trip_miles
+logger.addHandler(file_handler)
 
 from datetime import date
 import location
 import time
 
+#load configurations
+import config
+output_file = config.output_file
+loc2loc_miles = config.loc2loc_miles
+loc_zips = config.loc_zips
 
-loc_zips = {
-	'01950': 'AJ',
-	'01841': 'LW',
-	'01420': 'HM'
-}
-loc2loc_miles = {
-	'AJLL': 37,
-	'AJLS': 32,
-	'AJLW': 21,
-	'LLAJ': 38,
-	'LLLS': 3,
-	'LLLW': 18,
-	'LLHM': 35,
-	'LSAJ': 32,
-	'LSLL': 3,
-	'LSLW': 13,
-	'LWAJ': 21,
-	'LWLL': 17,
-	'LWLS': 12,
-	'HMLL': 37
-	}
+
 today = date.today()
 date = today.strftime("%m/%d/%y")
-data= ()
+logger.info(f'date set as {date}')
 
+
+def get_last_entry(filename):
+	with open(filename, 'r') as file:
+		result = file.readlines()[-1].strip().split(', ')
+		for item in result:
+			try:
+				i = result.index(item)
+				result[i] = int(item.strip())
+			except:
+				pass
+	return result
+	
 
 def set_last_known_loc():
-	with open('output.txt', 'r') as file:
-		f = file.readlines()[-1].split(',')
-		if f[0] == date:
-			return f[2].strip()
-		else:
-			return 'HM'
-			
+	f = get_last_entry(output_file)
+	if f[0] == date:
+		return f[2].strip()  #return end_loc
+	else:
+		return 'HM'
+
+
 def set_last_known_odo():
-	with open('output.txt', 'r') as file:
-		f = file.readlines()[-1].split(',')
-		try:
-			odo = int(f[4].strip())
-		except ValueError:
-			odo = 1
-		return odo
-		
-			
+	f = get_last_entry(output_file)
+	try:
+		odo = int(f[4])
+	except ValueError:
+		odo = 1
+	return odo
+
+
 def set_odo():
 	while True:
 		try:
@@ -62,7 +84,7 @@ def set_odo():
 			print('Invalid entry. Please enter a number.')
 			continue
 	return odo
-		
+
 
 def set_loc():
 	print('Identifying location....')
@@ -72,78 +94,85 @@ def set_loc():
 	addr = location.reverse_geocode(loc)
 	location.stop_updates()
 	print('Done.')
-	
+
 	return addr[0].get('ZIP')
+	
 
+def append_file(file, data):
+	print(f'Writing to {file}...')
+	try:
+		with open(file, 'a') as f:
+			f.write(f'{data[0]}, {data[1]}, {data[2]}, {data[3]}, {data[4]}, {data[5]}\n')
+			print('Done.')
+	except:
+		print('Failed.')
+		logger.error(f'Failed to write to {file}.')
+		logger.debug(f'DATA: {data}')
+		
+def set_data(date, start_loc, end_loc, start_odo, end_odo, trip_mi):
+	lst = [date, start_loc, end_loc, start_odo, end_odo, trip_mi]
+	return lst
+		
 
-#todo: add function to convert location to key value as per locations dict
 def zip2loc(zipcode):
 	return loc_zips.get(zipcode)
 
-
-def calculate_missing_odo(first, second, loc1,loc2):
-	trip_mi = loc1+loc2 
-	if first == 1:
-		first = second - loc2loc_miles.get(trip_mi)
-		return first
-	elif second == 1:
-		second = first + loc2loc_miles.get(trip_mi)
-		return  second
-		
 
 def main_loop():
 	last_known_loc = set_last_known_loc()
 	last_known_odo = set_last_known_odo()
 	missed_reading = True
-
+	data = [get_last_entry(output_file)]
+	if data[-1] == ['date', ' startloc', ' endloc', ' startodo', ' endodo', ' tripmiles']:
+		data = []
+	
 	while missed_reading:
 		
-		start_loc = last_known_loc #start loc
-		#b = input('Start Location > ').strip().upper()
-		end_loc = '' #end loc
-		#end_loc = input('End Location > ').strip().upper()
-		#start_odo = int(input('Start Odometer > '))
-		end_odo = set_odo()
 		
-		#set location
+		last_entry = get_last_entry(output_file)
+		print(data)
+		start_loc = last_known_loc
+		end_loc = ''
+		
+		if last_entry[0] != date and data[-1][0] != date:
+			data = []
+			data.append(set_data(date, 'HM', 'LL', 1, 1, loc2loc_miles.get('HMLL')))
+			
+			print(
+			f'date={data[-1][0]}, start_loc={data[-1][1]}, end_loc={data[-1][2]}, start_odo={data[-1][3]}, end_odo={data[-1][4]}, trip_mi={data[-1][5]}')
+			
+		
+		end_odo = set_odo()
+
 		if end_odo == 1:
 			end_loc = input('Location > ').strip().upper()
-			data = (date, end_odo, end_loc)
-		else: 
+			start_loc = data[-1][2]
+			data.append(set_data(date, start_loc, end_loc, 1, end_odo, loc2loc_miles.get(start_loc+end_loc)))
+			continue
+		else:
 			missed_reading = False
+			start_loc = data[-1][2]
 			zipcode = set_loc()
 			if zipcode in loc_zips:
 				end_loc = loc_zips.get(zipcode)
 			else:
 				end_loc = input('Current Location > ').strip().upper()
+			
 				
-		#set start_odo
-		start_odo = last_known_odo
-		trip = start_loc+end_loc
-		trip_mi = loc2loc_miles.get(trip)
-		if end_odo == 1:
-			end_odo = start_odo+trip_mi
-		else:
-			pass
+			data.append(set_data(date, start_loc, end_loc, 1, end_odo, loc2loc_miles.get(start_loc+end_loc)))
+			
+			data.reverse()
+			previous_end_odo = end_odo
+			for lst in data:
+				if lst[0] == date:
+					lst[4] = int(previous_end_odo)
+					lst[3] = lst[4] - lst[5]
+					previous_end_odo = lst[3]
 		
+		data.reverse()
+		for item in data:
+			append_file(output_file, item)
+		print(data)
 		
-		
-		
-		
-		
-		print(f'date={date}, start_loc={start_loc}, end_loc={end_loc}, start_odo={start_odo}, end_odo={end_odo}, trip_mi = {trip_mi}')
-		
-		print('Writing to output.txt...')
-		try:
-			with open('output.txt', 'a') as file:
-				file.write(f'{date}, {start_loc}, {end_loc}, {start_odo}, {end_odo}, {trip_mi}\n')
-				print('Done.')
-		except:
-			print('Failed.')
-		
-		#for use if not writing to file
-		last_known_loc = end_loc
-		last_known_odo = end_odo
-		start_odo = last_known_odo
-		
+
 main_loop()
