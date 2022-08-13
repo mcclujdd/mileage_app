@@ -5,7 +5,7 @@ Application for tracking mileage with minimal user input.
 
 # BASIC USE
 
-Run mileage.py. Enter odometer.
+Run mileage.py. Enter odometer reading.
 
 
 # DETAILED USE
