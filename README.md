@@ -8,6 +8,9 @@ Run mileage_2.0.py
 
 Exit with e
 Add entry with a
+  data entry must follow specific formatting.
+  *mm/dd/yy [2 letter start location] [2 letter end location] [starting odometer] [ending odometer]
+  [total miles]*
 Seek help with h
   h [command] for help with a specific command.
 
@@ -28,10 +31,6 @@ The config.py file must have the following:
 
 Optionals:
 
-*name* full name for final format filename (e.g. 'John Smith')
+*name*: full name for final format filename (e.g. 'John Smith')
 
-*cloud_path* for file path to cloud storage file in pythonista (e.g. '/path_to_cloud/')
-
-# Caution
-
-It is important that the last location visited for the day is recorded. If not, the next time the app is run, it will take the last known location and add an entry from there to the home location assigned in the config file. This could result in errors or false trips and therefore incorrect mileage.
+*cloud_path*: for file path to cloud storage file in pythonista (e.g. '/path_to_cloud/')
