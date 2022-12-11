@@ -31,4 +31,4 @@ Optionals:
 
 *name*: full name for final format filename (e.g. 'John Smith')
 
-*cloud_path*: for file path to cloud storage file in pythonista (e.g. '/path_to_cloud/')
+*cloud_path*: for file path to cloud storage file in pythonista (e.g. '/path/to/cloud/')
