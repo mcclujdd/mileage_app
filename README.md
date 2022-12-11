@@ -10,7 +10,7 @@ Exit with e
 Add entry with a
   data entry must follow specific formatting.  
   *mm/dd/yy [2 letter start location] [2 letter end location] [starting odometer] [ending odometer]
-  [total miles]*
+  [total miles]*  
 Seek help with h
   h [command] for help with a specific command.
 
