@@ -14,8 +14,6 @@ Add entry with a
 Seek help with h
   h [command] for help with a specific command.
 
-While at a destination, run the application with the mileage_2.0.py script.
-
 
 # Configurations
 
