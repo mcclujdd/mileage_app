@@ -8,7 +8,7 @@ Run mileage_2.0.py
 
 Exit with e
 Add entry with a
-  data entry must follow specific formatting.
+  data entry must follow specific formatting.  
   *mm/dd/yy [2 letter start location] [2 letter end location] [starting odometer] [ending odometer]
   [total miles]*
 Seek help with h
