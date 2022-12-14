@@ -64,42 +64,7 @@ opts['e'] = e
 
 '''add entry'''
 a = Option('a')
-
-def add_entry(self, entry: list, file=_config.output_file):
-  #ensure uppercase locations
-  try:
-    assert len(entry) == 6
-  except AssertionError:
-    print('Invalid: Must input 6 values. h a for help.')
-    return
-  entry[1] = entry[1].upper()
-  entry[2] = entry[2].upper()
-  try:
-    entry[3] = int(entry[3])
-    entry[4] = int(entry[4])
-    entry[5] = int(entry[5])
-  except Exception as e:
-    print('Invalid: Must use integers as final 3 values.')
-    return 
-  self.trip = c_trips.Trip()
-  #new and testing
-  errors = self.trip.validate_data(entry)
-  try:
-    assert len(errors) < 1
-  except Exception as e:
-    print('Validation Errors:\n')
-    for err in errors: print(f'>>{err}')
-    return
-  
-  ''' old and working---------v
-  if not self.trip.validate_data(entry):
-    print("invalid entry")
-    return
-  '''
-  self.entry = self.trip.clean_manual_input(self, *entry)
-  self.trip.append_file(self.entry, file)
-
-a.execute = types.MethodType(add_entry, a)
+a.execute = types.MethodType(func.exec_a_loop, a)
 a.helpertext = '''
 a - Add entry manually using format:\nmm/dd/yy startloc endloc startodo endodo miles'''
 opts['a'] = a

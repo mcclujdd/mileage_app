@@ -64,34 +64,7 @@ class Trip:
     return errors
 
 
-  def clean_manual_input(self, *args) -> dict:
-    output = []
-    headers = self.ENTRY_HEADERS
-
-    for a in range(3):
-      try:
-        output.append(str(args[a + 1]))
-      except ValueError as ve:
-        print(ve)
-        raise ValueError()
-
-      except IndexError as ie:
-        print('Input requires 6 arguments. Please try again.')
-        raise IndexError
-
-    for a in range(3):
-      try:
-        #check odometers to read   a<b and c=b-c
-        output.append(int(args[a + 4]))
-      except ValueError as ve:
-        raise ValueError(f'{ve}: Please check values for accurate formatting.')
-
-      except IndexError as ie:
-        print('Input requires 6 arguments. Please try again.')
-
-    output = dict(zip(headers, output))
-
-    return output
+  
 
   def new_manual_entry(self,
                        date: str,

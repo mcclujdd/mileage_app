@@ -64,15 +64,7 @@ class TestTrips(unittest.TestCase):
     self.assertIn(entry['endloc'], _config.locations)
     self.assertIn(entry['startloc'] + entry['endloc'], _config.loc2loc_miles)
     self.assertEqual(entry['tripmiles'], entry['endodo'] - entry['startodo'])
-    #test start odo of new entry against last
-    #self.assertGreaterEqual(entry[3], _config.output_file)
-
-  '''
-	def test_new_entry_data_is_valid(self):
-		with self.assertRaises(ValueError):
-			c_trips.Trip().new_manual_entry(6, 6, 6, "f", "f", "f")'''
-
-
+    
 if __name__ == "__main__":
   unittest.main()
 
