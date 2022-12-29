@@ -1,14 +1,17 @@
 import _config
-import location, time
+import location, time, datetime
 from Exceptions import *
-import c_trips
+import c_trips, options
+
 
 
 def exec_a_loop():
   while True:
     u_input=parse_input(input("Enter Trip Data:"))
+    if u_input[0] == "e":
+      options.opts['e'].execute()
     try:
-      create_entry(u_input)
+      validate_entry(u_input)
       entry = clean_manual_input(*u_input)
       break
     except (IndexError, ValidationError) as err:
@@ -16,7 +19,9 @@ def exec_a_loop():
   append_file(entry)
 
 
-def create_entry(entry: list, file=_config.output_file)->dict:
+def validate_entry(entry: list, file=_config.output_file):
+  # data validation function
+  
   #ensure uppercase locations
   try:
     assert len(entry) == 6
@@ -33,7 +38,7 @@ def create_entry(entry: list, file=_config.output_file)->dict:
     print('Invalid: Must use integers as final 3 values.')
     return 
   trip = c_trips.Trip()
-  #new and testing
+  # give good errors for user
   errors = trip.validate_data(entry)
   try:
     assert len(errors) < 1
@@ -46,10 +51,19 @@ def create_entry(entry: list, file=_config.output_file)->dict:
 
 ########################################
 '''needs testing'''
+def exec_opt(opt, *args):
+  
+  if opt in options.opts:
+    # dict to select option like switch stamement?
+      if opt == 'a':
+          exec_a_loop()
+      else:
+          options.opts[opt].execute()
+  else:
+    print(f'Command {opt} not valid. h for help. ')
 
-
-def parse_input(input):
-  _ = input.split()
+def parse_input(i):
+  _ = i.split()
   return _
   
   
@@ -106,6 +120,7 @@ def get_loc_from_zip(zipcode):
   
 def get_loc2loc_miles(loc1, loc2):
   key = loc1+loc2
+  loc2loc_miles = _config.loc2loc_miles
   try:
     if not type(loc2loc_miles.get(key)) == int:
       raise ValueError
@@ -114,6 +129,15 @@ def get_loc2loc_miles(loc1, loc2):
     exit()
   return loc2loc_miles.get(key)
 
+
+def loc1_generator(last_entry):
+  if last_entry.get('date') == _config.TODAY:
+    return last_entry.get('loc2')
+  else:
+    return _config.HOME_LOC
+    
+def loc2_generator():
+    return get_loc_from_zip(get_current_zipcode())
 
 ########################################
 '''maybe useful'''
@@ -181,5 +205,51 @@ def append_file(entry, file=_config.output_file):
   with open(file, 'a') as f:
     f.write(f"{entry['date']}, {entry['startloc']}, {entry['endloc']}, {entry['startodo']}, {entry['endodo']}, {entry['tripmiles']}\n")
 
+########################################
 
+def deprecated_but_maybe_useful_for_m_option():
+    #create object to store consecutive entries
+    
+    #add entries to object until user says they're done
+    
+    # display all edded entries with numbered indicators (for acting on a specific entry later)
+    
+    #functionality to remove entries
+    
+    #functionality to modify an entry
+      #take user input (way to easily autogen the entry into the text field?)
+    
+    #populate odometer readings based off of any reading given
+    
+    #resort(manually?) so that entries can be added in any order
+    
+    if end_odo == 1: #get missing trip info and add to list of entries
+      end_loc = input('Location > ').strip().upper()
+      start_loc = entries[-1].get('endloc')
+      entries.append(create_entry([date, start_loc, end_loc, 1, end_odo, get_loc2loc_miles(start_loc, end_loc)]))
+      
+    else: #get current trip info and back-calculate mileage readings
+      missed_reading = False
+      start_loc = entries[-1]['endloc']
+      end_loc = get_loc_from_zip(get_current_zipcode())
 
+      entries.append(create_entry([date, start_loc, end_loc, 1, end_odo, get_loc2loc_miles(start_loc, end_loc)]))
+
+      '''try checking for a reading from current date with a valid odo and calculate all entry data based off of it'''
+      entries.reverse()
+      previous_end_odo = end_odo
+      for entry in entries:
+        if entry.get('date') == date:
+          entry['endodo'] = int(previous_end_odo)
+          entry['startodo'] = entry['endodo'] - entry['tripmiles']
+          previous_end_odo = entry['startodo']
+
+    entries.reverse()
+    appended_entries = []
+    for item in entries:
+      if item['startloc'] != 'HM':
+        append_file(output_file, item)
+        appended_entries.append(item)
+    print('\nENTRIES ADDED:')
+    for item in appended_entries:
+      print(item.get('date'), item.get('startloc'), item.get('endloc'), item.get('startodo'), item.get('endodo'), item.get('tripmiles'))

@@ -3,6 +3,16 @@ import re
 import _config
 import logging
 
+class Entry:
+  
+  def __init__(self, date, startloc, endloc, startodo, endodo, tripmiles):
+    self.date = date
+    self.startloc = startloc
+    self.endloc = endloc
+    self.startodo = startodo
+    self.endodo = endodo
+    self.tripmiles = tripmiles
+    
 
 class Trip:
   '''Trip entry consists of the date, the start location, end location, correspondent odometer readings, and miles traveled'''

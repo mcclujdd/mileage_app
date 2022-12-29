@@ -55,15 +55,7 @@ class TestTrips(unittest.TestCase):
     true_entry = ["08/08/22", "LL", "LW", 100, 118, 18]
     x = self.trip1.validate_data(true_entry)
     self.assertEqual(len(x), 0)
-
-  def test_input_formatted_true(self):
-    entry = self.trip1.clean_manual_input(self, "08/22/22", "LL", "LW", 100,
-                                          118, 18)
-    #check for trip values in config file
-    self.assertIn(entry['startloc'], _config.locations)
-    self.assertIn(entry['endloc'], _config.locations)
-    self.assertIn(entry['startloc'] + entry['endloc'], _config.loc2loc_miles)
-    self.assertEqual(entry['tripmiles'], entry['endodo'] - entry['startodo'])
+    
     
 if __name__ == "__main__":
   unittest.main()
