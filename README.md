@@ -3,12 +3,12 @@ Application for tracking mileage with minimal user input.
 *requires python 3.6 using pythonista for iOS*
 *location services must be enabled for pythonista*
 
-# BASIC USE
+# Basic Use
 
 Run mileage.py. Enter odometer reading.
 
 
-# DETAILED USE
+# Detailed Use
 
 While at a destination, run the application with the app.py script.
 
@@ -19,7 +19,7 @@ If the location is not automatically detected with a current odometer reading, i
 If the trip is not in the configuration file (e.g Location AA to location BB as AABB) it will throw an exception and require an update to the config.py or a manual entry to the csv output file.
 
 
-## CONFIGURATIONS
+## Configurations
 
 The config.py file must have the following:
 
@@ -37,6 +37,6 @@ Optionals:
 
 *cloud_path* for filepath to cloud storage file in pythonista (e.g. '/path_to_cloud/')
 
-### CAUTION
+### Caution
 
 It is important that the last location visited for the day is recorded. If not, the next time the app is run, it will take the last known location and add an entry from there to the home location assigned in the config file. This could result in errors or false trips and therefore incorrect mileage.
